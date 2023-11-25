@@ -4,3 +4,18 @@ opencv-python == 4.8.1.78
 imutils
 uvicorn == 0.23.2
 fastapi == 0.104.1
+tensorflow == 2.13.0
+
+# tensorflow_io
+# tensorflow_addons
+# pillow
+# lxml
+# matplotlib
+# pandas
+# tf_slim
+# pycocotools
+# scipy
+# dataclasses
+# pyyaml
+# lvis
+# gin-config
