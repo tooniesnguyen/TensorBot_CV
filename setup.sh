@@ -1,1 +1,2 @@
-conda create --name robotino4 python=3.9
+conda create --name tensorbot python=3.9
+
