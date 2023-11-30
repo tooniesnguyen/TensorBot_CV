@@ -16,6 +16,7 @@ sudo ufw disable
 
 ## Install mmdetect
 ```
+
 # GPU
 conda install pytorch torchvision -c pytorch
 
@@ -46,3 +47,4 @@ python demo/image_demo.py demo/demo.jpg rtmdet_tiny_8xb32-300e_coco.py --weights
 ## References
 - https://towardsdatascience.com/what-i-was-missing-while-using-the-kalman-filter-for-object-tracking-8e4c29f6b795
 - https://mmdetection.readthedocs.io/en/latest/get_started.html
+- https://github.com/open-mmlab/mmdeploy/blob/main/docs/en/get_started.md
