@@ -5,36 +5,52 @@ from mmengine.utils import get_git_hash
 from mmengine.utils.dl_utils import collect_env as collect_base_env
 import mmdet
 from mmdet.apis import DetInferencer
+import sys
+import socket
+import os
+from pathlib import Path
 
 
-config_path = '/home/robotino/Desktop/Nhan_CDT/TensorBot-Vision/mmdetection/configs/yolo/yolov3_mobilenetv2_8xb24-ms-416-300e_coco.py'
-checkpoint = '/home/robotino/Desktop/Nhan_CDT/TensorBot-Vision/checkpoints/epoch_1.pth'
-inferencer = DetInferencer(model=config_path, weights=checkpoint, device='cpu')
-pipe = rs.pipeline()
-cfg  = rs.config()
+HOST = socket.gethostbyname(socket.gethostname())
+FILE = Path(__file__).resolve()
+ROOT = FILE.parents[0]
+WORK_DIR = os.path.dirname(ROOT)
 
-cfg.enable_stream(rs.stream.color, 640,480, rs.format.bgr8, 30)
-cfg.enable_stream(rs.stream.depth, 640,480, rs.format.z16, 30)
+class TRACKING:
+    def __init__(self, config_path, checkpoint):
+        self.inferencer = DetInferencer(model=config_path, weights=checkpoint, device='cpu')
 
-pipe.start(cfg)
+    def detect_person(self, img):
+        return self.inferencer(img)
+    
+    @staticmethod
+    def realsense_init():
+        pipe = rs.pipeline()
+        cfg  = rs.config()
+        cfg.enable_stream(rs.stream.color, 640,480, rs.format.bgr8, 30)
+        cfg.enable_stream(rs.stream.depth, 640,480, rs.format.z16, 30)
+        pipe.start(cfg)
 
-while True:
-    frame = pipe.wait_for_frames()
-    depth_frame = frame.get_depth_frame()
-    color_frame = frame.get_color_frame()
+        return pipe, cfg
 
-    depth_image = np.asanyarray(depth_frame.get_data())
-    color_image = np.asanyarray(color_frame.get_data())
-    depth_cm = cv2.applyColorMap(cv2.convertScaleAbs(depth_image,
-                                     alpha = 0.5), cv2.COLORMAP_JET)
 
-    gray_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)
-    result = inferencer(color_image)
-    print(result)
-    cv2.imshow('rgb', color_image)
-    cv2.imshow('depth', depth_cm)
 
-    if cv2.waitKey(1) == ord('q'):
-        break
 
-pipe.stop()
+def main():
+    config_path = os.path.join(WORK_DIR, "TensorBot-Vision/mmdetection/configs/yolo/yolov3_mobilenetv2_8xb24-ms-416-300e_coco.py")
+    checkpoint = os.path.join(WORK_DIR, "TensorBot-Vision/checkpoints/epoch_1.pth")
+    track = TRACKING(config_path, checkpoint)
+    pipe, config = track.realsense_init()
+    while True:
+        frame = pipe.wait_for_frames()
+        color_frame = frame.get_color_frame()
+        color_image = np.asanyarray(color_frame.get_data())
+
+        cv2.imshow('rgb', color_image)
+        if cv2.waitKey(1) == ord('q'):
+            break
+
+
+
+if __name__ == "__main__":
+    main()
