@@ -20,8 +20,10 @@ class TRACKING:
     def __init__(self, config_path, checkpoint):
         self.inferencer = DetInferencer(model=config_path, weights=checkpoint, device='cpu')
 
+
     def detect_person(self, img):
-        return self.inferencer(img)
+        result = self.inferencer(img)
+        return result
     
     @staticmethod
     def realsense_init():
