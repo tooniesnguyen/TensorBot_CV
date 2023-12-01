@@ -33,6 +33,17 @@ class TRACKING:
 
         return pipe, cfg
 
+    @staticmethod
+    def realsense_start(pipe, cfg):
+        while True:
+            frame = pipe.wait_for_frames()
+            color_frame = frame.get_color_frame()
+            color_image = np.asanyarray(color_frame.get_data())
+
+            cv2.imshow('rgb', color_image)
+            if cv2.waitKey(1) == ord('q'):
+                break
+        pipe.stop()
 
 
 
@@ -41,15 +52,10 @@ def main():
     checkpoint = os.path.join(WORK_DIR, "TensorBot-Vision/checkpoints/epoch_1.pth")
     track = TRACKING(config_path, checkpoint)
     pipe, config = track.realsense_init()
-    while True:
-        frame = pipe.wait_for_frames()
-        color_frame = frame.get_color_frame()
-        color_image = np.asanyarray(color_frame.get_data())
 
-        cv2.imshow('rgb', color_image)
-        if cv2.waitKey(1) == ord('q'):
-            break
 
+    track.realsense_start(pipe, config)
+    
 
 
 if __name__ == "__main__":
