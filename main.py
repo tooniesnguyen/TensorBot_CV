@@ -22,7 +22,7 @@ class TRACKING:
 
 
     def detect_person(self, img):
-        result = self.inferencer(img)
+        result = self.inferencer(img)['predictions'][0]['bboxes']
         return result
     
     @staticmethod
@@ -35,14 +35,20 @@ class TRACKING:
 
         return pipe, cfg
 
-    @staticmethod
-    def realsense_start(pipe, cfg):
+    
+    def realsense_start(self, pipe, cfg):
         while True:
             frame = pipe.wait_for_frames()
             color_frame = frame.get_color_frame()
             color_image = np.asanyarray(color_frame.get_data())
             
-            result = TRACKING.detect_person(color_image)
+            result = self.detect_person(color_image)
+
+            if result:
+                # [[355.6026916503906, 255.78961181640625, 460.9337158203125, 452.4129943847656]]
+                x,y,w,h = result[0], result[1], result[2], result[3]
+                cv2.rectangle(color_image, (x,y), (x+h, y+w), (0,0,255), 2 )
+
             print(result)
             cv2.imshow('rgb', color_image)
             if cv2.waitKey(1) == ord('q'):
