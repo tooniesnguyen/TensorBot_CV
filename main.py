@@ -47,7 +47,7 @@ class TRACKING:
             if result:
                 # [[355.6026916503906, 255.78961181640625, 460.9337158203125, 452.4129943847656]]
                 x,y,w,h = int(result[0][0]), int(result[0][1]), int(result[0][2]), int(result[0][3])
-                cv2.rectangle(color_image, (x,y), (x+h, y+w), (0,0,255), 2 )
+                cv2.rectangle(color_image, (x,y), (h, w), (0,0,255), 2 )
 
             cv2.imshow('rgb', color_image)
             if cv2.waitKey(1) == ord('q'):
