@@ -39,7 +39,9 @@ class TRACKING:
             frame = pipe.wait_for_frames()
             color_frame = frame.get_color_frame()
             color_image = np.asanyarray(color_frame.get_data())
-
+            
+            result = TRACKING.detect_person(color_image)
+            print(result)
             cv2.imshow('rgb', color_image)
             if cv2.waitKey(1) == ord('q'):
                 break
