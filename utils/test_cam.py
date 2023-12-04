@@ -5,9 +5,9 @@ import cv2
 pipe = rs.pipeline()
 cfg  = rs.config()
 
-cfg.enable_stream(rs.stream.color, 640,480, rs.format.bgr8, 30)
-cfg.enable_stream(rs.stream.depth, 640,480, rs.format.z16, 30)
-cfg.enable_stream(rs.stream.infrared, 640, 480, rs.format.y8, 30)
+cfg.enable_stream(rs.stream.color, 1280,720, rs.format.bgr8, 30)
+cfg.enable_stream(rs.stream.depth, 1280,720, rs.format.z16, 30)
+cfg.enable_stream(rs.stream.infrared, 1280, 720, rs.format.y8, 30)
 
 
 pipe.start(cfg)
@@ -26,6 +26,8 @@ while True:
                                      alpha = 0.5), cv2.COLORMAP_JET)
 
     gray_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)
+    x, y = 640, 360
+    cv2.circle(color_image, (x, y), 10, (0,255,0),2)
 
     cv2.imshow('rgb', color_image)
     cv2.imshow('depth', depth_cm)

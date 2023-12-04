@@ -19,7 +19,7 @@ WORK_DIR = os.path.dirname(ROOT)
 class TRACKING:
     def __init__(self, config_path, checkpoint):
         self.inferencer = DetInferencer(model=config_path, weights=checkpoint, device='cpu')
-
+        
 
     def detect_person(self, img):
         result = self.inferencer(img)['predictions'][0]['bboxes']
@@ -37,23 +37,47 @@ class TRACKING:
 
     
     def realsense_start(self, pipe, cfg):
+        bb_ready = 0
+        mode_CSRT = 0
+        tracker = cv2.legacy.TrackerCSRT_create()
+
         while True:
             frame = pipe.wait_for_frames()
             color_frame = frame.get_color_frame()
             color_image = np.asanyarray(color_frame.get_data())
-            
-            result = self.detect_person(color_image)
+            if (not bb_ready) and (not mode_CSRT):
+                result = self.detect_person(color_image)
+                if result:
+                    print("############################# Run Mode Detect #############################")
+                    # [[355.6026916503906, 255.78961181640625, 460.9337158203125, 452.4129943847656]]
+                    x1,y1,x2,y2 = int(result[0][0]), int(result[0][1]), int(result[0][2]), int(result[0][3])
 
-            if result:
-                # [[355.6026916503906, 255.78961181640625, 460.9337158203125, 452.4129943847656]]
-                x,y,w,h = int(result[0][0]), int(result[0][1]), int(result[0][2]), int(result[0][3])
-                cv2.rectangle(color_image, (x,y), (h, w), (0,0,255), 2 )
+                    #Convert x1,y1,x2,y2 to x,y,h,w
+
+                    x,y,h,w = x1,y1, y2-y1, x2-x1
+                    cv2.rectangle(color_image, (x1,y1), (x2, y2), (0,0,255), 2 )
+                    bb_ready = 1
+            elif bb_ready:
+                print("############################# Run Mode Start #############################")
+                ret = tracker.init(color_image, (x,y,w,h))
+                mode_CSRT = 1
+                bb_ready = 0
+                
+            elif mode_CSRT:
+                ret, obj = tracker.update(color_image)
+                print("############################# Run Mode CSRT #############################")
+                if ret:
+                    p1 = (int(obj[0]), int(obj[1]))
+                    p2 = (int(obj[0]+obj[2]), int(obj[1]+obj[3]))
+                    cv2.rectangle(color_image, p1, p2, (0, 255, 0), 2)
+                else:
+                    mode_CSRT = 0
 
             cv2.imshow('rgb', color_image)
             if cv2.waitKey(1) == ord('q'):
                 break
         pipe.stop()
-
+        
 
 
 def main():
